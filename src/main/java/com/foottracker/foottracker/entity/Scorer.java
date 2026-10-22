@@ -18,20 +18,20 @@ import lombok.Setter;
 @NoArgsConstructor
 public class Scorer {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
     private Long playerId;
     private String playerName;
     private String nationality;
     private String competitionCode;
 
-    @ManyToOne
-    private Team team;
-
     private Integer playedMatches;
     private Integer goals;
     private Integer assists;
     private Integer penalties;
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @ManyToOne
+    private Team team;
 }
