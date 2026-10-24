@@ -1,0 +1,18 @@
+package com.foottracker.foottracker.config;
+
+import io.swagger.v3.oas.models.OpenAPI;
+import io.swagger.v3.oas.models.info.Info;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+
+@Configuration
+public class OpenApiConfig {
+
+    @Bean
+    public OpenAPI footTrackerOpenApi() {
+        return new OpenAPI().info(new Info()
+                .title("FootTracker API")
+                .version("1.0")
+                .description("Statistiques de football calculees a partir des donnees de football-data.org"));
+    }
+}
