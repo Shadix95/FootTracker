@@ -1,5 +1,8 @@
 const competitionSelect = document.getElementById('competition');
 let currentStandings = [];
+let favoriteIds = new Set();
+const MESSAGE_DURATION_MS = 5000;
+let messageTimer;
 
 function competition() {
     return competitionSelect.value;
@@ -19,10 +22,14 @@ async function callApi(url, method = 'GET') {
 }
 
 function showMessage(text, type = 'danger') {
-    document.getElementById('message').innerHTML =
+    const container = document.getElementById('message');
+    container.innerHTML =
         `<div class="alert alert-${type} alert-dismissible">${escapeHtml(text)}
             <button type="button" class="btn-close" onclick="this.parentElement.remove()"></button>
          </div>`;
+
+    clearTimeout(messageTimer);
+    messageTimer = setTimeout(() => container.innerHTML = '', MESSAGE_DURATION_MS);
 }
 
 function escapeHtml(value) {
@@ -57,9 +64,25 @@ function statCard(label, value) {
 }
 
 async function loadStandings() {
-    currentStandings = await callApi(`/api/competitions/${competition()}/standings`);
+    const [standings, favorites] = await Promise.all([
+        callApi(`/api/competitions/${competition()}/standings`),
+        callApi('/api/favorites')
+    ]);
+    currentStandings = standings;
+    favoriteIds = new Set(favorites.map(f => f.teamId));
     document.getElementById('team-details').innerHTML = '';
+    renderStandings();
+    fillTeamSelects();
+}
 
+function favoriteButton(teamId) {
+    const isFavorite = favoriteIds.has(teamId);
+    return `<button class="btn btn-sm py-0 ${isFavorite ? 'btn-warning' : 'btn-outline-secondary'}"
+                    title="${isFavorite ? 'Retirer des favoris' : 'Ajouter aux favoris'}"
+                    onclick="toggleFavorite(${teamId})">${isFavorite ? '★' : '☆'}</button>`;
+}
+
+function renderStandings() {
     if (currentStandings.length === 0) {
         document.getElementById('standings-body').innerHTML =
             '<tr><td colspan="11" class="text-center text-muted">Aucune donnée : clique sur "Synchroniser".</td></tr>';
@@ -71,11 +94,9 @@ async function loadStandings() {
                 <td>${row.played}</td><td>${row.wins}</td><td>${row.draws}</td><td>${row.losses}</td>
                 <td>${row.goalsFor}</td><td>${row.goalsAgainst}</td><td>${row.goalDifference}</td>
                 <td><strong>${row.points}</strong></td>
-                <td><button class="btn btn-sm btn-outline-warning py-0" title="Ajouter aux favoris"
-                            onclick="addFavorite(${row.teamId})">★</button></td>
+                <td>${favoriteButton(row.teamId)}</td>
             </tr>`).join('');
     }
-    fillTeamSelects();
 }
 
 async function showTeamDetails(teamId) {
@@ -168,7 +189,7 @@ async function loadHeadToHead(team1, team2) {
 async function loadFavorites() {
     const favorites = await callApi('/api/favorites');
     document.getElementById('favorites-list').innerHTML = favorites.length === 0
-        ? '<p class="text-muted">Aucun favori : ajoute une équipe avec ★ dans le classement.</p>'
+        ? '<p class="text-muted">Aucun favori : ajoute une équipe avec ☆ dans le classement.</p>'
         : favorites.map(f => `
             <div class="col-md-6">
                 <div class="card h-100">
@@ -188,10 +209,19 @@ async function loadFavorites() {
             </div>`).join('');
 }
 
-async function addFavorite(teamId) {
+async function toggleFavorite(teamId) {
+    const teamName = currentStandings.find(row => row.teamId === teamId)?.teamName;
     try {
-        const favorite = await callApi(`/api/favorites/${teamId}`, 'POST');
-        showMessage(`${favorite.teamName} ajouté aux favoris`, 'success');
+        if (favoriteIds.has(teamId)) {
+            await callApi(`/api/favorites/${teamId}`, 'DELETE');
+            favoriteIds.delete(teamId);
+            showMessage(`${teamName} retiré des favoris`, 'success');
+        } else {
+            await callApi(`/api/favorites/${teamId}`, 'POST');
+            favoriteIds.add(teamId);
+            showMessage(`${teamName} ajouté aux favoris`, 'success');
+        }
+        renderStandings();
     } catch (e) {
         showMessage(e.message);
     }

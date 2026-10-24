@@ -29,6 +29,6 @@ public class SyncController {
     @PostMapping("/{code}")
     public String syncCompetition(@Parameter(example = "FL1") @PathVariable String code) {
         syncService.syncCompetition(code.toUpperCase());
-        return "Synchronisation de " + code.toUpperCase() + " terminee";
+        return "Synchronisation de " + code.toUpperCase() + " terminée";
     }
 }
