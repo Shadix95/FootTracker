@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>FootTracker</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+
+<nav class="navbar navbar-dark bg-dark mb-4">
+    <div class="container">
+        <span class="navbar-brand">⚽ FootTracker</span>
+        <div class="d-flex gap-2">
+            <select id="competition" class="form-select form-select-sm">
+                <option value="FL1">Ligue 1</option>
+                <option value="PL">Premier League</option>
+                <option value="PD">Liga</option>
+                <option value="SA">Serie A</option>
+                <option value="BL1">Bundesliga</option>
+            </select>
+            <button id="sync-button" class="btn btn-outline-light btn-sm text-nowrap">Synchroniser</button>
+        </div>
+    </div>
+</nav>
+
+<div class="container">
+    <div id="message"></div>
+
+    <ul class="nav nav-tabs mb-3">
+        <li class="nav-item"><button class="nav-link active" data-tab="standings">Classement</button></li>
+        <li class="nav-item"><button class="nav-link" data-tab="scorers">Buteurs</button></li>
+        <li class="nav-item"><button class="nav-link" data-tab="matchday">Journée</button></li>
+        <li class="nav-item"><button class="nav-link" data-tab="head-to-head">Face-à-face</button></li>
+        <li class="nav-item"><button class="nav-link" data-tab="favorites">Favoris</button></li>
+    </ul>
+
+    <section id="tab-standings" class="tab">
+        <div id="team-details"></div>
+        <div class="table-responsive">
+            <table class="table table-sm table-hover bg-white">
+                <thead>
+                <tr>
+                    <th>#</th><th>Équipe</th><th>J</th><th>V</th><th>N</th><th>D</th>
+                    <th>BP</th><th>BC</th><th>Diff</th><th>Pts</th><th></th>
+                </tr>
+                </thead>
+                <tbody id="standings-body"></tbody>
+            </table>
+        </div>
+        <p class="text-muted small">Clique sur une équipe pour voir son bilan.</p>
+    </section>
+
+    <section id="tab-scorers" class="tab d-none">
+        <div class="table-responsive">
+            <table class="table table-sm table-hover bg-white">
+                <thead>
+                <tr>
+                    <th>Joueur</th><th>Équipe</th><th>Matchs</th><th>Buts</th><th>Penaltys</th>
+                    <th>Hors penalty</th><th>Buts/match</th><th>% des buts de l'équipe</th>
+                </tr>
+                </thead>
+                <tbody id="scorers-body"></tbody>
+            </table>
+        </div>
+    </section>
+
+    <section id="tab-matchday" class="tab d-none">
+        <form id="matchday-form" class="d-flex gap-2 mb-3" style="max-width: 300px">
+            <input id="matchday-input" type="number" min="1" value="1" class="form-control" required>
+            <button class="btn btn-primary text-nowrap">Voir la journée</button>
+        </form>
+        <div id="matchday-result"></div>
+    </section>
+
+    <section id="tab-head-to-head" class="tab d-none">
+        <form id="h2h-form" class="row g-2 mb-3">
+            <div class="col-md-4"><select id="h2h-team1" class="form-select" required></select></div>
+            <div class="col-md-4"><select id="h2h-team2" class="form-select" required></select></div>
+            <div class="col-md-2"><button class="btn btn-primary w-100">Comparer</button></div>
+        </form>
+        <div id="h2h-result"></div>
+    </section>
+
+    <section id="tab-favorites" class="tab d-none">
+        <div id="favorites-list" class="row g-3"></div>
+    </section>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>
